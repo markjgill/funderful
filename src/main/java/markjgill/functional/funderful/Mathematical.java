@@ -22,7 +22,10 @@ public class Mathematical {
     }
 
     public static <A extends Number> A add(A value1, A value2) {
-        return add(value1).apply(value2);
+        return Curryable.<A>add()
+                .curried()
+                .apply(value1)
+                .apply(value2);
     }
 
     public static <A extends Number> Function1<A, A> subtract(A value1) {
@@ -32,17 +35,23 @@ public class Mathematical {
     }
 
     public static <A extends Number> A subtract(A value1, A value2) {
-        return subtract(value1).apply(value2);
+        return Curryable.<A>subtract()
+                .curried()
+                .apply(value1)
+                .apply(value2);
     }
 
-    public static <A extends Number> Function1<A, A> power(Integer value1) {
+    public static <A extends Number> Function1<A, A> power(Integer value) {
         return Curryable.<A>power()
                 .curried()
-                .apply(value1);
+                .apply(value);
     }
 
     public static <A extends Number> A power(Integer value1, A value2) {
-        return (A) power(value1).apply(value2);
+        return Curryable.<A>power()
+                .curried()
+                .apply(value1)
+                .apply(value2);
     }
 
     private static class Curryable {

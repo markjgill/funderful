@@ -9,20 +9,12 @@ public class Functional {
     private Functional() {}
 
     public static <A> Function1<A, A> identity() {
-        return value -> value;
+        return Function1.identity();
     }
 
-    public static <A, B> Function1<A, B> always(B value2) {
-        return value1 -> value2;
+    public static <A, B> Function1<A, B> always(B value) {
+        return Function1.constant(value);
     }
-
-//    public static Function0<Boolean> alwaysTrue() {
-//        return always(true);
-//    }
-//
-//    public static Function0<Boolean> alwaysFalse() {
-//        return always(false);
-//    }
 
     public static <A, B> Function1<A, B> tryCatch(Function1<A, B> tryer,
                                                   Function1<A, B> catcher) {
@@ -44,50 +36,112 @@ public class Functional {
 
     public static <A, B, C> Function1<A, C> compose(Function1<B, C> second,
                                                     Function1<A, B> first) {
-        return value -> second.compose(first)
-                .apply(value);
+        return Curryable.<A, B, C, C, C, C, C, C>compose()
+                .apply(identity())
+                .apply(identity())
+                .apply(identity())
+                .apply(identity())
+                .apply(identity())
+                .apply(second)
+                .apply(first);
     }
 
     public static <A, B, C, D> Function1<A, D> compose(Function1<C, D> third,
                                                        Function1<B, C> second,
                                                        Function1<A, B> first) {
-        return value -> compose(third, compose(second, first))
-                .apply(value);
+        return Curryable.<A, B, C ,D, D, D, D, D>compose()
+                .apply(identity(), identity(), identity(), identity())
+                .apply(third)
+                .apply(second)
+                .apply(first);
     }
 
+    public static <A, B, C, D, E> Function1<A, E> compose(Function1<D, E> fourth,
+                                                          Function1<C, D> third,
+                                                          Function1<B, C> second,
+                                                          Function1<A, B> first) {
+        return Curryable.<A, B, C ,D, E, E, E, E>compose()
+                .apply(identity(), identity(), identity())
+                .apply(fourth)
+                .apply(third)
+                .apply(second)
+                .apply(first);
+    }
+
+    public static <A, B, C, D, E, F> Function1<A, F> compose(Function1<E, F> fifth,
+                                                             Function1<D, E> fourth,
+                                                             Function1<C, D> third,
+                                                             Function1<B, C> second,
+                                                             Function1<A, B> first) {
+        return Curryable.<A, B, C ,D, E, F, F, F>compose()
+                .apply(identity(), identity())
+                .apply(fifth)
+                .apply(fourth)
+                .apply(third)
+                .apply(second)
+                .apply(first);
+    }
+
+    public static <A, B, C, D, E, F, G> Function1<A, G> compose(Function1<F, G> sixth,
+                                                                Function1<E, F> fifth,
+                                                                Function1<D, E> fourth,
+                                                                Function1<C, D> third,
+                                                                Function1<B, C> second,
+                                                                Function1<A, B> first) {
+        return Curryable.<A, B, C ,D, E, F, G, G>compose()
+                .apply(identity())
+                .apply(sixth)
+                .apply(fifth)
+                .apply(fourth)
+                .apply(third)
+                .apply(second)
+                .apply(first);
+    }
+
+    public static <A, B, C, D, E, F, G, H> Function1<A, H> compose(Function1<G, H> seventh,
+                                                                   Function1<F, G> sixth,
+                                                                   Function1<E, F> fifth,
+                                                                   Function1<D, E> fourth,
+                                                                   Function1<C, D> third,
+                                                                   Function1<B, C> second,
+                                                                   Function1<A, B> first) {
+        return Curryable.<A, B, C ,D, E, F, G, H>compose()
+                .apply(seventh)
+                .apply(sixth)
+                .apply(fifth)
+                .apply(fourth)
+                .apply(third)
+                .apply(second)
+                .apply(first);
+    }
+
+    @SafeVarargs
     public static <A> Function1<A, A> compose(Function1<A, A>... functions) {
         return value -> List.of(functions)
                 .reduceRight(Function1::compose)
                 .apply(value);
     }
 
-    public static <A, B> Function0<B> thunkify(Function1<A, B> function,
-                                               A value) {
-        return () -> function.apply(value);
-    }
-
-    public static <A, B, C> Function1<B, Function0<C>> thunkify(Function2<A, B, C> function,
-                                                                A value1) {
-        return Curryable.thunkify(function)
-                .curried()
-                .apply(value1);
-    }
-
-    public static <A, B, C> Function0<C> thunkify(Function2<A, B, C> function,
-                                                  A value1,
-                                                  B value2) {
-        return Curryable.thunkify(function)
-                .curried()
-                .apply(value1)
-                .apply(value2);
-    }
-
     private static class Curryable {
 
         private Curryable() {}
 
-        public static <A, B, C> Function2<A, B, Function0<C>> thunkify(Function2<A, B, C> function) {
-            return (value1, value2) -> () -> function.apply(value1, value2);
+        public static <A, B, C, D, E, F, G, H> Function8<Function1<G, H>,
+                                                         Function1<F, G>,
+                                                         Function1<E, F>,
+                                                         Function1<D, E>,
+                                                         Function1<C, D>,
+                                                         Function1<B, C>,
+                                                         Function1<A, B>,
+                                                         A,
+                                                         H> compose() {
+            return (seventh, sixth, fifth, fourth, third, second, first, value) -> seventh.compose(sixth)
+                    .compose(fifth)
+                    .compose(fourth)
+                    .compose(third)
+                    .compose(second)
+                    .compose(first)
+                    .apply(value);
         }
     }
 }

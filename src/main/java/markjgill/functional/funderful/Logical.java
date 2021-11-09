@@ -8,6 +8,15 @@ public class Logical {
 
     private Logical() {}
 
+    public static <A> Function1<Option<A>, Boolean> isDefined() {
+        return option -> option.isDefined();
+    }
+
+    public static <A> Function1<Option<A>, Boolean> isEmpty() {
+        return Curryable.<Option<A>>complement()
+                .apply(isDefined());
+    }
+
     public static <A> Function1<A, Boolean> complement(Function1<A, Boolean> function) {
         return Curryable.<A>complement()
                 .apply(function);
@@ -37,6 +46,7 @@ public class Logical {
                 .apply(function1, function2);
     }
 
+    @SafeVarargs
     public static <A> Function1<A, Boolean> any(Function1<A, Boolean> function,
                                                 Function1<A, Boolean>... otherFunctions) {
         return Curryable.<A>any()
@@ -44,6 +54,7 @@ public class Logical {
                 .apply(otherFunctions);
     }
 
+    @SafeVarargs
     public static <A> Function1<A, Boolean> all(Function1<A, Boolean> function,
                                                 Function1<A, Boolean>... otherFunctions) {
         return Curryable.<A>all()
@@ -84,10 +95,27 @@ public class Logical {
                 .apply(condition, onTrue);
     }
 
+    public static <A> Function1<Function1<A, A>, Function1<Option<A>, Option<A>>> whenOption(Function1<A, Boolean> condition) {
+        return Curryable.<A>whenOption()
+                .curried()
+                .apply(condition);
+    }
+
+    public static <A> Function1<Option<A>, Option<A>> whenOption(Function1<A, Boolean> condition,
+                                                                 Function1<A, A> onTrue) {
+        return Curryable.<A>whenOption()
+                .curried()
+                .apply(condition)
+                .apply(onTrue);
+    }
+
+    @SafeVarargs
     public static <A, B> Function1<A, Option<B>> cond(Tuple2<Function1<A, Boolean>, Function1<A, B>> condition,
                                                       Tuple2<Function1<A, Boolean>, Function1<A, B>>... otherConditions) {
         return Curryable.<A, B>cond()
-                .apply(condition, otherConditions);
+                .curried()
+                .apply(condition)
+                .apply(otherConditions);
     }
 
     private static class Curryable {
@@ -130,6 +158,16 @@ public class Logical {
             return (condition, onTrue, object) -> condition.apply(object)
                     ? onTrue.apply(object)
                     : object;
+        }
+
+        public static <A> Function3<Function1<A, Boolean>, Function1<A, A>, Option<A>, Option<A>> whenOption() {
+            return (condition, onTrue, object) -> {
+                Option<A> nullSafe = object.flatMap(a -> Option.of(null));
+
+                return nullSafe.isDefined() && condition.apply(object.get())
+                        ? Option.of(onTrue.apply(object.get()))
+                        : object;
+            };
         }
 
         public static <A, B> Function3<Tuple2<Function1<A, Boolean>, Function1<A, B>>,

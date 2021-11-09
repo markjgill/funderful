@@ -12,6 +12,16 @@ public class Classical {
 
     private Classical() {}
 
+    public static <A> Function1<A, Option<A>> optionOf() {
+        return object -> Option.of(object);
+    }
+
+    public static <A> Function1<A, Option<A>> optionWith(Function1<A, Boolean> condition) {
+        return Curryable.<A>optionWith()
+                .curried()
+                .apply(condition);
+    }
+
     public static <A, B> Function1<A, Boolean> is(Class<B> clazz) {
         return Curryable.<A, B>is()
                 .curried()
@@ -130,6 +140,7 @@ public class Classical {
         return function -> function.apply();
     }
 
+    @SafeVarargs
     public static <A> Function1<Function0<A>, A> construct(Function1<A, A> setter,
                                                            Function1<A, A>... others) {
         return function -> compose(
@@ -164,6 +175,12 @@ public class Classical {
     private static class Curryable {
 
         private Curryable() {}
+
+        public static <A> Function2<Function1<A, Boolean>, A, Option<A>> optionWith() {
+            return (function, value) -> value != null && function.apply(value)
+                    ? Option.of(value)
+                    : Option.none();
+        }
 
         public static <A, B> Function2<Class<B>, A, Boolean> is() {
             return (clazz, object) -> object.getClass().equals(clazz);
