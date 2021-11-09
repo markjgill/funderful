@@ -33,6 +33,7 @@ Returns A wrapped in an Option if the function returns true, Option.None otherwi
 ```java
 optionWith(a -> a > 10).apply(15); // Some(15)
 optionWith(a -> a > 10).apply(5); // None
+optionWith(a -> a > 10).apply(null); // None
 ```
 
 #### is() : Class\<B\> -> (A -> Boolean) -> Boolean
