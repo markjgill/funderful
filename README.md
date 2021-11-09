@@ -12,7 +12,7 @@ mvn clean install
 ```xml
 <dependency>
     <groupId>markjgill.functional</groupId>
-    <artifactId>funcderful</artifactId>
+    <artifactId>funderful</artifactId>
     <version>...</version>
 </dependency>
 ```
