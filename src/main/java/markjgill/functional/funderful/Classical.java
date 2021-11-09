@@ -76,9 +76,9 @@ public class Classical {
                 .apply(fourth);
     }
 
-    public static <A, B, C> Function1<A, C> path(C alternative,
-                                                 Function1<B, C> second,
-                                                 Function1<A, B> first) {
+    public static <A, B, C> Function1<A, C> pathOr(C alternative,
+                                                   Function1<B, C> second,
+                                                   Function1<A, B> first) {
         return Curryable.<A, B, C, C, C>pathOr()
                 .apply(alternative)
                 .apply(first)
@@ -87,10 +87,10 @@ public class Classical {
                 .apply(identity());
     }
 
-    public static <A, B, C, D> Function1<A, D> path(D alternative,
-                                                    Function1<C, D> third,
-                                                    Function1<B, C> second,
-                                                    Function1<A, B> first) {
+    public static <A, B, C, D> Function1<A, D> pathOr(D alternative,
+                                                      Function1<C, D> third,
+                                                      Function1<B, C> second,
+                                                      Function1<A, B> first) {
         return Curryable.<A, B, C, D, D>pathOr()
                 .apply(alternative)
                 .apply(first)
@@ -99,11 +99,11 @@ public class Classical {
                 .apply(identity());
     }
 
-    public static <A, B, C, D, E> Function1<A, E> path(E alternative,
-                                                       Function1<D, E> fourth,
-                                                       Function1<C, D> third,
-                                                       Function1<B, C> second,
-                                                       Function1<A, B> first) {
+    public static <A, B, C, D, E> Function1<A, E> pathOr(E alternative,
+                                                         Function1<D, E> fourth,
+                                                         Function1<C, D> third,
+                                                         Function1<B, C> second,
+                                                         Function1<A, B> first) {
         return Curryable.<A, B, C, D, E>pathOr()
                 .apply(alternative)
                 .apply(first)
@@ -196,12 +196,12 @@ public class Classical {
         }
 
         public static <A, B, C, D, E> Function5<Function1<A, B>, Function1<B, C>, Function1<C, D>, Function1<D, E>, A, Option<E>> path() {
-            return (first, second, third, fourth, object) -> Try.of(() ->
-                    compose(
-                            compose(fourth, third),
-                            compose(second, first)
-                    ).apply(object)
-            ).toOption();
+            return (first, second, third, fourth, object) -> Try.of(() -> compose(
+                    fourth,
+                    third,
+                    second,
+                    first
+            ).apply(object)).toOption();
         }
 
         public static <A, B, C, D, E> Function6<E, Function1<A, B>, Function1<B, C>, Function1<C, D>, Function1<D, E>, A, E> pathOr() {
