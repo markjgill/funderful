@@ -1,7 +1,25 @@
-# funderful
-A functional library for Java
+# funderful - A Functional Library for Java
 
-## Usage
+<b>Note: This is in development and makes no guarantee yet to the accuracy of the functions
+
+## Build / Import
+Requires JDK11+ to build
+
+```shell
+mvn clean install
+```
+
+```xml
+<dependency>
+    <groupId>markjgill.functional</groupId>
+    <artifactId>funcderful</artifactId>
+    <version>...</version>
+</dependency>
+```
+
+## Example Usages
+Each function must be statically imported into your class
+
 - Composing functions
 ```java
 var result = compose(
