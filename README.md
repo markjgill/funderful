@@ -17,6 +17,57 @@ mvn clean install
 </dependency>
 ```
 
+## API
+
+### Classical
+
+#### optionOf() : A -> Option\<A\>
+Returns A is wrapped in an Option
+```java
+optionOf().apply(5); // Some(5)
+optionOf().apply(null); // Some(null)
+```
+
+#### optionWith() : (A -> Boolean) -> (A -> Option\<A\>) -> Option\<A\>
+Returns A wrapped in an Option if the function returns true, Option.None otherwise
+```java
+optionWith(a -> a > 10).apply(15); // Some(15)
+optionWith(a -> a > 10).apply(5); // None
+```
+
+#### is() : Class\<B\> -> (A -> Boolean) -> Boolean
+Returns true if the class of A is the same as B, false otherwise
+```java
+is(Integer.class).apply(10); // true
+is(Integer.class).apply("10"); // false
+```
+
+#### prop() : (A -> B) -> (A -> B) -> B
+Returns the value of the field referred to by the function
+```java
+prop(LocalDate::getDayOfWeek).apply(LocalDate.now()); // SATURDAY
+prop(Person::getName).apply(new Person()); // null
+```
+
+#### propOr() : B -> (A -> B) -> (A -> B) -> B
+Returns the value of the field referred to by the function, or B if null
+```java
+propOr(MONDAY, LocalDate::getDayOfWeek).apply(LocalDate.now()); // SATURDAY
+propOr("Name", Person::getName).apply(new Person()); // "Name"
+propOr(10); // (A -> B) -> (A -> B) -> B
+```
+
+#### path() : (D -> E) ->  ... -> (A -> B) -> (A -> Option\<E\>) -> Option\<E\>
+Return an option of the value of the field referred to by the path
+```java
+Address address = new Address("Auckland");
+Person person = new Person(address);
+
+path(Address::getCity, Person::getAddress).apply(person); // Some("Auckland")
+path(Address::getStreet, Person::getAddress).apply(person); // Some(null)
+path(Person::getAddress, Person::getParent).apply(person); // None
+```
+
 ## Example Usages
 Each function must be statically imported into your class
 
@@ -40,11 +91,10 @@ var result = cond(
 
 - Object instantiation
 ```java
-var result = compose(
+var result = construct(
     set(Person::setAge, 29),
     set(Person::setSurname, "Smith"),
     set(Person::setFirstname, "Joe"),
-    construct()
 ).apply(Person::new);
 ```
 
