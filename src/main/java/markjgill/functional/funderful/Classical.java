@@ -1,5 +1,6 @@
 package markjgill.functional.funderful;
 
+import com.google.gson.Gson;
 import io.vavr.*;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -112,28 +113,55 @@ public class Classical {
                 .apply(fourth);
     }
 
-    public static <A, B> Function1<Function1<A, B>, Function1<BiConsumer<A, B>, Function0<Tuple3<A, Function1<A, B>, BiConsumer<A, B>>>>> lens(A object) {
+    public static <A, B> Function1<BiConsumer<A, B>, Lens<A, B>> lens(Function1<A, B> getter) {
         return Curryable.<A, B>lens()
                 .curried()
-                .apply(object);
-    }
-
-    public static <A, B> Function1<BiConsumer<A, B>, Function0<Tuple3<A, Function1<A, B>, BiConsumer<A, B>>>> lens(A object,
-                                                                                                                   Function1<A, B> getter) {
-        return Curryable.<A, B>lens()
-                .curried()
-                .apply(object)
                 .apply(getter);
     }
 
-    public static <A, B> Function0<Tuple3<A, Function1<A, B>, BiConsumer<A, B>>> lens(A object,
-                                                                                      Function1<A, B> getter,
-                                                                                      BiConsumer<A, B> setter) {
+    public static <A, B> Lens<A, B> lens(Function1<A, B> getter,
+                                         BiConsumer<A, B> setter) {
         return Curryable.<A, B>lens()
                 .curried()
-                .apply(object)
                 .apply(getter)
                 .apply(setter);
+    }
+
+    public static <A, B> Function1<B, Function1<A, A>> set(Lens<A, B> lens) {
+        return Curryable.<A, B>set()
+                .curried()
+                .apply(lens);
+    }
+
+    public static <A, B> Function1<A, A> set(Lens<A, B> lens, B value) {
+        return Curryable.<A, B>set()
+                .curried()
+                .apply(lens)
+                .apply(value);
+    }
+
+    public static <A, B> Function1<Function1<B, B>, Function1<B, Function1<A, A>>> setWith(Lens<A, B> lens) {
+        return Curryable.<A, B>setWith()
+                .curried()
+                .apply(lens);
+    }
+
+    public static <A, B> Function1<B, Function1<A, A>> setWith(Lens<A, B> lens,
+                                                               Function1<B, B> function) {
+        return Curryable.<A, B>setWith()
+                .curried()
+                .apply(lens)
+                .apply(function);
+    }
+
+    public static <A, B> Function1<A, A> setWith(Lens<A, B> lens,
+                                                  Function1<B, B> function,
+                                                  B value) {
+        return Curryable.<A, B>setWith()
+                .curried()
+                .apply(lens)
+                .apply(function)
+                .apply(value);
     }
 
     public static <A> Function1<Function0<A>, A> construct() {
@@ -150,29 +178,20 @@ public class Classical {
         ).apply(function);
     }
 
-    public static <A, B> Function1<A, A> set(BiConsumer<A, B> setter,
-                                             B value) {
-        return object -> setWith(lens(object, always(value), setter), setter)
-                .apply(object);
-    }
+    public static class Lens<A, B> {
 
-    public static <A, B, C> Function1<C, C> setWith(Function1<BiConsumer<A, B>, Function0<Tuple3<A, Function1<A, B>, BiConsumer<A, B>>>> lens,
-                                                 BiConsumer<C, B> setter) {
-        return Curryable.<A, B, C>setWith()
-                .curried()
-                .apply(lens.apply((a, b) -> new UnsupportedOperationException("Setter is unsupported")))
-                .apply(setter);
-    }
+        private final Function1<A, B> getter;
+        private final BiConsumer<A, B> setter;
 
-    public static <A, B, C> Function1<C, C> setWith(Function0<Tuple3<A, Function1<A, B>, BiConsumer<A, B>>> lens,
-                                                    BiConsumer<C, B> setter) {
-        return Curryable.<A, B, C>setWith()
-                .curried()
-                .apply(lens)
-                .apply(setter);
+        private Lens(Function1<A, B> getter, BiConsumer<A, B> setter) {
+            this.getter = getter;
+            this.setter = setter;
+        }
     }
 
     private static class Curryable {
+
+        private static final Gson gson = new Gson();
 
         private Curryable() {}
 
@@ -210,15 +229,25 @@ public class Classical {
                     .getOrElse(alternative);
         }
 
-        public static <A, B> Function3<A, Function1<A, B>, BiConsumer<A, B>, Function0<Tuple3<A, Function1<A, B>, BiConsumer<A, B>>>> lens() {
-            return (object, getter, setter) -> Function0.constant(Tuple.of(object, getter, setter));
+        public static <A, B> Function2<Function1<A, B>, BiConsumer<A, B>, Lens<A, B>> lens() {
+            return Lens::new;
         }
 
-        public static <A, B, C> Function3<Function0<Tuple3<A, Function1<A, B>, BiConsumer<A, B>>>, BiConsumer<C, B>, C, C> setWith() {
-            return (lens, setter, value) -> {
-                Tuple3<A, Function1<A, B>, BiConsumer<A, B>> tuple = lens.apply();
-                setter.accept(value, tuple._2().apply(tuple._1()));
-                return value;
+        public static <A, B> Function3<Lens<A, B>, B, A, A> set() {
+            return (lens, value, object) -> {
+                A clone = (A) gson.fromJson(gson.toJson(object), object.getClass());
+
+                lens.setter.accept(clone, value);
+                return clone;
+            };
+        }
+
+        public static <A, B> Function4<Lens<A, B>, Function1<B, B>, B, A, A> setWith() {
+            return (lens, function, value, object) -> {
+                A clone = (A) gson.fromJson(gson.toJson(object), object.getClass());
+
+                lens.setter.accept(clone, function.apply(value));
+                return clone;
             };
         }
     }
