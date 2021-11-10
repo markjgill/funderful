@@ -94,7 +94,7 @@ var result = cond(
 ```java
 var result = construct(
     set(lens(Person::getAge, Person::setAge), 29),
-    set(lens(Perosn::getSurname, Person::setSurname), "Smith"),
+    set(lens(Person::getSurname, Person::setSurname), "Smith"),
     set(lens(Person::getFirstname, Person::setFirstname), "Joe"),
 ).apply(Person::new);
 ```
