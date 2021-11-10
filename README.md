@@ -1,6 +1,6 @@
 # funderful - A Functional Library for Java
 
-<b>Note: This is in development and makes no guarantee yet to the accuracy of the functions
+<b>Note: This is in development and makes no guarantee as to the accuracy of the functions
 
 ## Build / Import
 Requires JDK11+ to build
@@ -93,9 +93,9 @@ var result = cond(
 - Object instantiation
 ```java
 var result = construct(
-    set(Person::setAge, 29),
-    set(Person::setSurname, "Smith"),
-    set(Person::setFirstname, "Joe"),
+    set(lens(Person::getAge, Person::setAge), 29),
+    set(lens(Perosn::getSurname, Person::setSurname), "Smith"),
+    set(lens(Person::getFirstname, Person::setFirstname), "Joe"),
 ).apply(Person::new);
 ```
 
