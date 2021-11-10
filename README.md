@@ -1,4 +1,4 @@
-# funderful - A Functional Library for Java
+# funderful - A Wonderful Functional Library for Java
 
 <b>Note: This is in development and makes no guarantee as to the accuracy of the functions
 
